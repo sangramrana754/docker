@@ -1,25 +1,47 @@
+name: Build, Push, and Run Docker Container
+ 
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+ 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Enable Debugging
-        run: echo "DEBUG: Enabling Docker Debug Mode"
       - name: Checkout repository
         uses: actions/checkout@v4
-
+ 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
+ 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+ 
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
-        env:
-          DOCKER_CLI_EXPERIMENTAL: enabled
         with:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/firstpipeline:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/my-app:latest
+ 
+  run-container:
+    runs-on: ubuntu-latest
+    needs: build-and-push  # Runs only after build-and-push job succeeds
+    steps:
+      - name: Pull Docker Image from Docker Hub
+        run: docker pull ${{ secrets.DOCKER_USERNAME }}/my-app:latest
+ 
+      - name: Run Docker Container
+        run: docker run -d --name my-app -p 8080:80 ${{ secrets.DOCKER_USERNAME }}/my-app:latest
+ 
+      - name: Check Running Containers
+        run: docker ps
+ 
+      - name: Test Application
+        run: curl -I http://localhost:8080
