@@ -35,7 +35,7 @@ jobs:
     needs: build-and-push  # Runs only after build-and-push job succeeds
     steps:
       - name: Pull Docker Image from Docker Hub
-        run: docker pull ${{ secrets.DOCKER_USERNAME }}/my-app:latest
+        run: docker pull sangramrana754/my-app:latest
  
       - name: Run Docker Container
         run: docker run -d --name my-app -p 8080:80 sangramrana754/my-app:latest
