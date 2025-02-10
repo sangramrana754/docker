@@ -31,4 +31,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/firstpipeline:latest
+          tags: ${{ sangramrana754 }}/firstpipeline:latest
